@@ -6,7 +6,7 @@
 
   <ul class="nav nav-pills flex-column" id="menu">
     <li class="nav-item">
-      <a href="#" class="nav-link" data-page="dashboard" onclick="loadPage('dashboard')">
+      <a href="../dashboard/index.php" class="nav-link" data-page="dashboard" onclick="loadPage('dashboard')">
         <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
       </a>
     </li>
