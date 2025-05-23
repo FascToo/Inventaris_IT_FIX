@@ -71,6 +71,43 @@
         localStorage.setItem("sidebarCollapsed", sidebar.classList.contains("collapsed"));
     }
 
+    document.getElementById('kode_barang').addEventListener('change', function () {
+        var kode = this.value;
+
+        if (kode !== '') {
+            fetch('get_spesifikasi.php?kode_barang=' + kode)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('spesifikasi_barang').value = data.spesifikasi_barang || '-';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('spesifikasi_barang').value = '-';
+                });
+        } else {
+            document.getElementById('spesifikasi_barang').value = '';
+        }
+    });
+
+    document.getElementById('add-stok').addEventListener('click', function () {
+        const container = document.getElementById('stok-container');
+        const firstRow = container.querySelector('.stok-row');
+        const newRow = firstRow.cloneNode(true);
+        newRow.querySelectorAll('input').forEach(el => el.value = '');
+        newRow.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+        container.appendChild(newRow);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-row')) {
+            const row = e.target.closest('.stok-row');
+            const container = document.getElementById('stok-container');
+            if (container.querySelectorAll('.stok-row').length > 1) {
+                row.remove();
+            }
+        }
+    });
+
 
 </script>
 </body>

@@ -1,0 +1,12 @@
+CREATE TABLE `maintenance` (
+  `id` int(11) NOT NULL,
+  `id_pengaduan` int(11) NOT NULL,
+  `kode_barang` varchar(50) DEFAULT NULL,
+  `tanggal_maintenance` date DEFAULT curdate(),
+  `masalah` text DEFAULT NULL,
+  `solusi` text DEFAULT NULL,
+  `teknisi` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `maintenance`
+  ADD CONSTRAINT `maintenance_ibfk_1` FOREIGN KEY (`id_pengaduan`) REFERENCES `pengaduan` (`id_pengaduan`) ON DELETE CASCADE,
+  ADD CONSTRAINT `maintenance_ibfk_2` FOREIGN KEY (`kode_barang`) REFERENCES `inventaris` (`kode_barang`) ON DELETE SET NULL; 

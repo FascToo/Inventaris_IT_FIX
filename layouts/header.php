@@ -136,23 +136,24 @@ $jmlNotif = $rowUnread['jml'] ?? 0;
         }
 
         .toggle-btn {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  padding: 6px 10px;
-  cursor: pointer;
-  z-index: 2000; /* buat di atas semua */
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 6px 10px;
+            cursor: pointer;
+            z-index: 2000;
+            /* buat di atas semua */
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
 
-.toggle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
+        .toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 

@@ -5,22 +5,34 @@ include('../layouts/header.php');
 include('../layouts/sidebar.php');
 
 // Fungsi format tanggal agar lebih enak dibaca
-function formatTanggal($date) {
-    return $date ? date('d-m-Y H:i', strtotime($date)) : '-';
+function formatTanggal($date)
+{
+  return $date ? date('d-m-Y H:i', strtotime($date)) : '-';
 }
 
 $id = $_GET['id'] ?? null;
 if (!$id) {
-    die("ID tidak ditemukan.");
+  die("ID tidak ditemukan.");
 }
 
 $id = mysqli_real_escape_string($conn, $id);
-$sql = "SELECT p.*, u.username FROM peminjaman p JOIN users u ON p.id_user = u.id WHERE p.id='$id'";
+
+// Query gabungan ke tabel peminjaman, users, dan barang
+$sql = "SELECT p.*, u.username, b.nama_barang, b.spesifikasi_barang
+        FROM peminjaman p 
+        JOIN users u ON p.id_user = u.id
+        LEFT JOIN inventaris b ON p.kode_barang = b.kode_barang
+        WHERE p.id = '$id'";
 $result = mysqli_query($conn, $sql);
+
+if (!$result) {
+  die("Query error: " . mysqli_error($conn));
+}
+
 $data = mysqli_fetch_assoc($result);
 
 if (!$data) {
-    die("Data tidak ditemukan");
+  die("Data tidak ditemukan");
 }
 ?>
 
@@ -40,28 +52,30 @@ if (!$data) {
           <li class="list-group-item"><strong>Kondisi Sekarang:</strong> <?= htmlspecialchars($data['kondisi_sekarang']) ?: '-' ?></li>
           <li class="list-group-item"><strong>Tanggal Cek Terakhir:</strong> <?= formatTanggal($data['tanggal_cek']) ?></li>
           <li class="list-group-item"><strong>Diajukan Pada:</strong> <?= formatTanggal($data['created_at']) ?></li>
-
+          <li class="list-group-item">
+            <strong>Barang:</strong><br>
+            <?= htmlspecialchars($data['kode_barang']) ?><br>
+            <?= htmlspecialchars($data['nama_barang'] ?? '-') ?><br>
+            <?= htmlspecialchars($data['spesifikasi'] ?? '-') ?>
+          </li>
           <?php if (!empty($data['file_formulir'])): ?>
             <li class="list-group-item">
               <strong>File Formulir:</strong><br>
-              <?php 
-                $filePath = '../uploads/' . $data['file_formulir'];
-                $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-
-                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
-                    // Gambar bisa diklik dan memperbesar modal
-                    echo "<img src=\"$filePath\" alt=\"Formulir\" class=\"img-fluid\" style=\"max-height:300px; cursor:pointer;\" data-bs-toggle=\"modal\" data-bs-target=\"#imageModal\">";
-                } elseif ($ext === 'pdf') {
-                    echo "<a href=\"$filePath\" target=\"_blank\" class=\"btn btn-outline-primary btn-sm\">Lihat PDF</a>";
-                } else {
-                    echo "<a href=\"$filePath\" download class=\"btn btn-outline-secondary btn-sm\">Download File</a>";
-                }
+              <?php
+              $filePath = '../uploads/' . $data['file_formulir'];
+              $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+              if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                echo "<img src=\"$filePath\" alt=\"Formulir\" class=\"img-fluid\" style=\"max-height:300px; cursor:pointer;\" data-bs-toggle=\"modal\" data-bs-target=\"#imageModal\">";
+              } elseif ($ext === 'pdf') {
+                echo "<a href=\"$filePath\" target=\"_blank\" class=\"btn btn-outline-primary btn-sm\">Lihat PDF</a>";
+              } else {
+                echo "<a href=\"$filePath\" download class=\"btn btn-outline-secondary btn-sm\">Download File</a>";
+              }
               ?>
             </li>
           <?php else: ?>
             <li class="list-group-item"><strong>File Formulir:</strong> -</li>
           <?php endif; ?>
-
         </ul>
         <a href="peminjaman_list.php" class="btn btn-secondary mt-3">Kembali ke daftar</a>
       </div>
@@ -86,12 +100,12 @@ if (!$data) {
 <?php include('../layouts/footer.php'); ?>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const modalImage = document.getElementById('modalImage');
     const images = document.querySelectorAll('img[data-bs-toggle="modal"]');
 
     images.forEach(img => {
-      img.addEventListener('click', function() {
+      img.addEventListener('click', function () {
         modalImage.src = this.src;
       });
     });

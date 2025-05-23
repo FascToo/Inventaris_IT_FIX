@@ -8,13 +8,17 @@ if ($_SESSION['role'] != 'Karyawan') {
     die("Akses hanya untuk karyawan.");
 }
 
+// Ambil data inventaris untuk dropdown
+$inventarisQuery = "SELECT kode_barang, nama_barang FROM inventaris ORDER BY nama_barang ASC";
+$inventarisResult = mysqli_query($conn, $inventarisQuery);
+
 if (isset($_POST['submit'])) {
     $id_user = $_SESSION['id'];
     $tanggal_pinjam = $_POST['tanggal_pinjam'];
+    $kode_barang = mysqli_real_escape_string($conn, $_POST['kode_barang']); // baru
     $nama_perusahaan = mysqli_real_escape_string($conn, $_POST['perusahaan']);
     $divisi = mysqli_real_escape_string($conn, $_POST['jabatan']);
-    $jenis_barang = mysqli_real_escape_string($conn, $_POST['jenis_barang']);
-    $spesifikasi = mysqli_real_escape_string($conn, $_POST['spesifikasi']);
+    // kita hapus jenis_barang dan spesifikasi karena sudah ada di inventaris
     $jumlah = intval($_POST['jumlah']);
     $kondisi_barang = mysqli_real_escape_string($conn, $_POST['kondisi_pinjam']);
     $keterangan = mysqli_real_escape_string($conn, $_POST['keterangan']);
@@ -37,9 +41,9 @@ if (isset($_POST['submit'])) {
     }
 
     $query = "INSERT INTO peminjaman (
-        id_user, tanggal_pinjam, perusahaan, jabatan, jenis_barang, spesifikasi, jumlah, kondisi_pinjam, keterangan, file_formulir
+        id_user, tanggal_pinjam, kode_barang, perusahaan, jabatan, jumlah, kondisi_pinjam, keterangan, file_formulir
     ) VALUES (
-        '$id_user', '$tanggal_pinjam', '$nama_perusahaan', '$divisi', '$jenis_barang', '$spesifikasi', '$jumlah', '$kondisi_barang', '$keterangan', '$path_formulir'
+        '$id_user', '$tanggal_pinjam', '$kode_barang', '$nama_perusahaan', '$divisi', '$jumlah', '$kondisi_barang', '$keterangan', '$path_formulir'
     )";
 
     if (mysqli_query($conn, $query)) {
@@ -64,20 +68,23 @@ if (isset($_POST['submit'])) {
                             <input type="date" class="form-control" name="tanggal_pinjam" required>
                         </div>
                         <div class="col-md-6 mb-3">
+                            <label for="kode_barang" class="form-label">Pilih Barang</label>
+                            <select class="form-select" name="kode_barang" required>
+                                <option value="">-- Pilih Barang --</option>
+                                <?php while ($item = mysqli_fetch_assoc($inventarisResult)) : ?>
+                                    <option value="<?= htmlspecialchars($item['kode_barang']) ?>">
+                                        <?= htmlspecialchars($item['kode_barang'] . ' - ' . $item['nama_barang']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label for="nama_perusahaan" class="form-label">Nama Perusahaan</label>
                             <input type="text" class="form-control" name="perusahaan" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="divisi" class="form-label">Divisi / Jabatan</label>
                             <input type="text" class="form-control" name="jabatan" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="jenis_barang" class="form-label">Jenis Barang</label>
-                            <input type="text" class="form-control" name="jenis_barang" placeholder="Contoh: Laptop, Mouse" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="spesifikasi" class="form-label">Spesifikasi Barang</label>
-                            <textarea class="form-control" name="spesifikasi" rows="2" placeholder="Contoh: Dell Latitude 7490, Core i5, 8GB RAM" required></textarea>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="jumlah" class="form-label">Jumlah</label>
